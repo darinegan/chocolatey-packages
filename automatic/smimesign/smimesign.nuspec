@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
+    <id>smimesign</id>
+    <title>smimesign (S/MIME Sign)</title>
+    <version>0.0.6</version>
+    <authors>GitHub</authors>
+    <owners>Darin Egan</owners>
+    <summary>Smimesign is an S/MIME signing utility that is compatible with Git.</summary>
+    <description>
+# smimesign (S/MIME Sign)
+
+Smimesign is an S/MIME signing utility that is compatible with Git. This allows developers to sign their Git commits and tags using X.509 certificates issued by public certificate authorities or their organization's internal certificate authority. Smimesign uses keys and certificates already stored in the *macOS Keychain* or the *Windows Certificate Store*.
+
+This project is pre-1.0, meaning that APIs and functionality may change without warning.
+    </description>
+    <projectUrl>https://github.com/github/smimesign</projectUrl>
+    <!-- <tags></tags> -->
+    <copyright>GitHub</copyright>
+    <licenseUrl>https://github.com/github/smimesign/raw/master/LICENSE.md</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <!-- <iconUrl></iconUrl> -->
+    <releaseNotes>https://github.com/github/smimesign/releases/latest</releaseNotes>
+    <docsUrl>https://github.com/github/smimesign/raw/master/CONTRIBUTING.md</docsUrl>
+    <bugTrackerUrl>https://github.com/github/smimesign/issues</bugTrackerUrl>
+    <projectSourceUrl>https://github.com/github/smimesign</projectSourceUrl>
+    <!-- <packageSourceUrl></packageSourceUrl> -->
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
