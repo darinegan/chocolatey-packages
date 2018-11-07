@@ -26,7 +26,7 @@ This project is pre-1.0, meaning that APIs and functionality may change without 
     <docsUrl>https://github.com/github/smimesign/raw/master/CONTRIBUTING.md</docsUrl>
     <bugTrackerUrl>https://github.com/github/smimesign/issues</bugTrackerUrl>
     <projectSourceUrl>https://github.com/github/smimesign</projectSourceUrl>
-    <!-- <packageSourceUrl></packageSourceUrl> -->
+    <packageSourceUrl>https://github.com/darinegan/chocolatey-packages/tree/master/automatic/smimesign</packageSourceUrl>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
