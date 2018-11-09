@@ -1,7 +1,5 @@
 ﻿$ErrorActionPreference = 'Stop'
 
-$version = '0.0.6'
-
 $installDir  = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
 $packageArgs = @{
