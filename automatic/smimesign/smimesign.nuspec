@@ -17,7 +17,7 @@ Smimesign is an S/MIME signing utility that is compatible with Git. This allows 
 This project is pre-1.0, meaning that APIs and functionality may change without warning.
     </description>
     <projectUrl>https://github.com/github/smimesign</projectUrl>
-    <tags>cli cross-platfrom security signature encryption certificate smime git</tags>
+    <tags>foss cli cross-platfrom security signature encryption certificate smime git</tags>
     <copyright>GitHub</copyright>
     <licenseUrl>https://github.com/github/smimesign/raw/master/LICENSE.md</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
