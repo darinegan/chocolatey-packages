@@ -21,7 +21,7 @@ This project is pre-1.0, meaning that APIs and functionality may change without 
     <copyright>GitHub</copyright>
     <licenseUrl>https://github.com/github/smimesign/raw/master/LICENSE.md</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <!-- <iconUrl></iconUrl> -->
+    <!-- IconUrl: Skip check -->
     <releaseNotes>https://github.com/github/smimesign/releases/latest</releaseNotes>
     <docsUrl>https://github.com/github/smimesign/raw/master/CONTRIBUTING.md</docsUrl>
     <bugTrackerUrl>https://github.com/github/smimesign/issues</bugTrackerUrl>
