@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
+    <id>service-fabric.sdk</id>
+    <title>Service Fabric SDK</title>
+    <version>2.6.220</version>
+    <authors>Microsoft</authors>
+    <owners>Darin Egan</owners>
+    <summary>Service Fabric is a distributed systems platform for packaging, deploying, and managing stateless and stateful distributed applications and containers at large scale.</summary>
+    <description>
+Service Fabric is a distributed systems platform that makes it easy to package, deploy, and manage scalable and reliable microservices and containers. Developers and administrators can avoid complex infrastructure problems and focus on implementing mission-critical, demanding workloads that are scalable, reliable, and manageable. Learn how to use Azure Service Fabric with our quickstarts, tutorials, and samples.
+    </description>
+    <projectUrl>https://docs.microsoft.com/azure/service-fabric</projectUrl>
+    <tags>foss cross-platfrom freeware cli</tags>
+    <copyright>Microsoft</copyright>
+    <licenseUrl>https://github.com/Microsoft/service-fabric/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <iconUrl>https://cdn.jsdelivr.net/gh/darinegan/chocolatey-packages@latest/icons/service-fabric.png</iconUrl>
+    <releaseNotes>https://blogs.msdn.microsoft.com/azureservicefabric</releaseNotes>
+    <docsUrl>https://docs.microsoft.com/azure/service-fabric</docsUrl>
+    <bugTrackerUrl>https://github.com/azure/service-fabric-issues</bugTrackerUrl>
+    <projectSourceUrl>https://github.com/Microsoft/service-fabric</projectSourceUrl>
+    <packageSourceUrl>https://github.com/darinegan/chocolatey-packages/tree/master/automatic/service-fabric.sdk</packageSourceUrl>
+    <dependencies>
+      <dependency id="service-fabric" version="5.6.220.9494" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
