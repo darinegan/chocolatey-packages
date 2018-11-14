@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
-    <id>service-fabric.tools</id>
+    <id>service-fabric-tools</id>
     <title>Service Fabric Tools</title>
     <version>1.6.50508.2</version>
     <authors>Microsoft</authors>
@@ -22,10 +22,10 @@ Service Fabric is a distributed systems platform that makes it easy to package, 
     <docsUrl>https://docs.microsoft.com/azure/service-fabric</docsUrl>
     <bugTrackerUrl>https://github.com/azure/service-fabric-issues</bugTrackerUrl>
     <projectSourceUrl>https://github.com/Microsoft/service-fabric</projectSourceUrl>
-    <packageSourceUrl>https://github.com/darinegan/chocolatey-packages/tree/master/automatic/service-fabric.tools</packageSourceUrl>
+    <packageSourceUrl>https://github.com/darinegan/chocolatey-packages/tree/master/automatic/service-fabric-tools</packageSourceUrl>
     <dependencies>
       <dependency id="service-fabric" version="5.6.220.9494" />
-      <dependency id="service-fabric.sdk" version="2.6.220" />
+      <dependency id="service-fabric-sdk" version="2.6.220" />
     </dependencies>
   </metadata>
   <files>
