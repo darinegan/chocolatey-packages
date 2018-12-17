@@ -4,10 +4,10 @@ $installDir  = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
 $packageArgs = @{
   packageName    = 'smimesign'
-  url            = 'https://github.com/github/smimesign/releases/download/0.0.8/smimesign-windows-386-0.0.8.zip'
-  url64Bit       = 'https://github.com/github/smimesign/releases/download/0.0.8/smimesign-windows-amd64-0.0.8.zip'
-  checksum       = '28c712fdc7b91c0d408d0775f7fdb6def8ae3df4287b1b164d9e580d2adc3263'
-  checksum64     = 'faba01366947d04330572f7494839cf6fa7f7594b81e9f62c1a4718dc208f17d'
+  url            = 'https://github.com/github/smimesign/releases/download/0.0.10/smimesign-windows-386-0.0.10.zip'
+  url64Bit       = 'https://github.com/github/smimesign/releases/download/0.0.10/smimesign-windows-amd64-0.0.10.zip'
+  checksum       = 'bec931ed85e78637b1ccb8c21838516ff95b0f7bc50fdd76c03227b98526ebdf'
+  checksum64     = '9f773fdfed78b4f03e5d6c7132319db1aa38790514396ae286fcd65753167789'
   checksumType   = 'sha256'
   checksumType64 = 'sha256'
   unzipLocation  = $installDir
