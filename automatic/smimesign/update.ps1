@@ -19,12 +19,13 @@ function global:au_GetLatest {
     $response = $request.GetResponse()
     $responseUri = $response.ResponseUri
 
-    $version = $responseUri.AbsolutePath | Split-Path -Leaf
+    $tag = $responseUri.AbsolutePath | Split-Path -Leaf
+    $version = $tag -replace '^v?'
 
     $Latest = @{
         Version = $version
-        URL32 = 'https://github.com/github/smimesign/releases/download/{0}/smimesign-windows-386-{0}.zip' -f $version
-        URL64 = 'https://github.com/github/smimesign/releases/download/{0}/smimesign-windows-amd64-{0}.zip' -f $version
+        URL32 = 'https://github.com/github/smimesign/releases/download/{0}/smimesign-windows-386-{1}.zip' -f $tag, $version
+        URL64 = 'https://github.com/github/smimesign/releases/download/{0}/smimesign-windows-amd64-{1}.zip' -f $tag, $version
         ChecksumType32 = 'sha256'
         ChecksumType64 = 'sha256'
     }
