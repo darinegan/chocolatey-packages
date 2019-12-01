@@ -12,8 +12,8 @@ function global:au_SearchReplace {
 
 function global:au_GetLatest {
     $Latest = @{
-        Version = '2.4.11116'
-        URL32 = 'https://download.microsoft.com/download/D/6/6/D664EC73-321A-4F1C-916E-65CE5AD729CF/MicrosoftAzureServiceFabricTools.VS140.en-us.msi'
+        Version = '2.5.20615'
+        URL32 = 'https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftAzureServiceFabricTools.VS140.en-us.msi'
         ChecksumType32 = 'sha256'
     }
     return $Latest
