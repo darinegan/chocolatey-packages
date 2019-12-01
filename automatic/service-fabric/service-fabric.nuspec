@@ -5,7 +5,7 @@
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
     <id>service-fabric</id>
     <title>Service Fabric</title>
-    <version>5.6.220.9494</version>
+    <version>6.4.664</version>
     <authors>Microsoft</authors>
     <owners>Darin Egan</owners>
     <summary>Service Fabric is a distributed systems platform for packaging, deploying, and managing stateless and stateful distributed applications and containers at large scale.</summary>
@@ -23,10 +23,6 @@ Service Fabric is a distributed systems platform that makes it easy to package, 
     <bugTrackerUrl>https://github.com/azure/service-fabric-issues</bugTrackerUrl>
     <projectSourceUrl>https://github.com/Microsoft/service-fabric</projectSourceUrl>
     <packageSourceUrl>https://github.com/darinegan/chocolatey-packages/tree/master/automatic/service-fabric</packageSourceUrl>
-    <dependencies>
-      <dependency id="vcredist2012" version="11.0.61031" />
-      <dependency id="vcredist140" version="14.0.24215.1" />
-    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
