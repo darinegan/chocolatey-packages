@@ -7,8 +7,8 @@ $packageArgs = @{
   packageName    = $env:ChocolateyPackageName
   softwareName   = $env:ChocolateyPackageTitle
   fileType       = 'msi'
-  url            = 'https://download.microsoft.com/download/8/b/2/8b21dcf8-4909-4aaa-8dcb-64c0a37a2d9c/MicrosoftServiceFabricSDK.4.0.464.msi'
-  checksum       = '51b49a2cc2ff5c7f0a5394f63ca244899cff34b8becb47501553f05680bfe2bf'
+  url            = 'https://download.microsoft.com/download/c/8/c/c8c98ab2-6e7a-4d9a-a0a5-506b18111677/MicrosoftServiceFabricSDK.4.1.409.msi'
+  checksum       = '48d232e4860106d2789b830b0eee0c202bcd4a2d6e10016e861931e8224f0619'
   checksumType   = 'sha256'
   silentArgs     = '/quiet /qn /norestart /l*v "{0}" IACCEPTEULA=yes' -f $logFile
   validExitCodes = @(0)
