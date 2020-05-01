@@ -4,7 +4,7 @@
   <metadata>
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
     <id>service-fabric-tools</id>
-    <title>Service Fabric Tools</title>
+    <title>Service Fabric Tools for Visual Studio 2015</title>
     <version>2.5.20615</version>
     <authors>Microsoft</authors>
     <owners>Darin Egan</owners>
