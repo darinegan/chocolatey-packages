@@ -1,5 +1,7 @@
 Import-Module au
 
+. $PSScriptRoot\..\..\tools\sftools.ps1
+
 function global:au_SearchReplace {
     @{
         'tools\chocolateyInstall.ps1' = @{
@@ -11,9 +13,10 @@ function global:au_SearchReplace {
 }
 
 function global:au_GetLatest {
+    $sfInfo = Get-FabricUpdateInfo
     $Latest = @{
-        Version = '7.1.456'
-        URL32 = 'https://download.microsoft.com/download/9/3/0/930f9307-52ef-4597-9ae9-f534415e77eb/MicrosoftServiceFabric.7.1.456.9590.exe'
+        Version = [version]$sfInfo.WinDevRuntime.Version.ToString(3)
+        URL32 = $sfInfo.WinDevRuntime.Uri.AbsoluteUri
         ChecksumType32 = 'sha256'
     }
     return $Latest
