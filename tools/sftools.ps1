@@ -118,6 +118,61 @@ function Read-FabricReleaseNotes
     return $sfInfo
 }
 
+function Write-FabricCachedUpdateInfo
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory = $true)] [PSObject] $FabricUpdateInfo
+    )
+
+    $ErrorActionPreference = 'Stop'
+    Set-StrictMode -Version 5
+
+    $timestamp = Get-Date
+    $payload = [pscustomobject]@{
+        Timestamp = $timestamp
+        FabricUpdateInfo = $FabricUpdateInfo
+    }
+
+    $cachePath = $script:FabricCachedUpdateInfoPath
+    Write-Debug ('Writing SF update info with timestamp {0:o} to cache file {1}' -f $timestamp, $cachePath)
+    $payload | Export-Clixml -Path $cachePath
+}
+
+function Read-FabricCachedUpdateInfo
+{
+    [CmdletBinding()]
+    Param ()
+
+    $ErrorActionPreference = 'Stop'
+    Set-StrictMode -Version 5
+
+    $cachePath = $script:FabricCachedUpdateInfoPath
+    if (Test-Path -Path $script:FabricCachedUpdateInfoPath)
+    {
+        Write-Debug "Reading SF update info cache file $cachePath"
+        $cachedInfo = Import-Clixml -Path $script:FabricCachedUpdateInfoPath
+        $timestamp = $cachedInfo.Timestamp
+        Write-Debug ('SF cached update info timestamp is {0:o}' -f $timestamp)
+        $age = (Get-Date) - $timestamp
+        $maxAge = $script:FabricCacheMaxAge
+        if ($age -lt $maxAge)
+        {
+            Write-Debug "Returning cached SF update info (age: $age, max age: $maxAge)"
+            return $cachedInfo.FabricUpdateInfo
+        }
+        else
+        {
+            Write-Debug "Cached SF update info is outdated, ignoring (age: $age, max age: $maxAge)"
+        }
+    }
+    else
+    {
+        Write-Debug "SF update info cache file does not exist: $cachePath"
+    }
+}
+
 function Get-FabricUpdateInfo
 {
     [CmdletBinding()]
@@ -126,10 +181,19 @@ function Get-FabricUpdateInfo
     $ErrorActionPreference = 'Stop'
     Set-StrictMode -Version 5
 
-    $relNotesInfos = Get-FabricReleaseNotesFile
-    $latestRelNotesInfo = $relNotesInfos | Sort-Object -Property release -Descending | Select-Object -First 1
-    Write-Debug "Latest release notes file: $($latestRelNotesInfo.name) ($($latestRelNotesInfo.release))"
-    $sfInfo = Read-FabricReleaseNotes -ReleaseNotesFileInfo $latestRelNotesInfo
+    $sfInfo = Read-FabricCachedUpdateInfo
+    if ($null -eq $sfInfo)
+    {
+        $relNotesInfos = Get-FabricReleaseNotesFile
+        $latestRelNotesInfo = $relNotesInfos | Sort-Object -Property release -Descending | Select-Object -First 1
+        Write-Debug "Latest release notes file: $($latestRelNotesInfo.name) ($($latestRelNotesInfo.release))"
+        $sfInfo = Read-FabricReleaseNotes -ReleaseNotesFileInfo $latestRelNotesInfo
+        Write-FabricCachedUpdateInfo -FabricUpdateInfo $sfInfo
+    }
+
     Write-Debug "Latest version: $($sfInfo.ThreePartVersion) ('$($sfInfo.Names.FullName)')"
     return $sfInfo
 }
+
+$script:FabricCachedUpdateInfoPath = "$PSScriptRoot\..\sfinfo.clixml"
+$script:FabricCacheMaxAge = [timespan]::FromHours(1)
