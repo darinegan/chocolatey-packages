@@ -199,5 +199,11 @@ function Get-FabricUpdateInfo
     return $sfInfo
 }
 
+function Get-RemoteChecksumFast([string] $Url, $Algorithm='sha256', $Headers)
+{
+    $ProgressPreference = 'SilentlyContinue'
+    & (Get-Command -Name Get-RemoteChecksum).ScriptBlock.GetNewClosure() @PSBoundParameters
+}
+
 $script:FabricCachedUpdateInfoPath = "$PSScriptRoot\..\sfinfo.clixml"
 $script:FabricCacheMaxAge = [timespan]::FromHours(1)
