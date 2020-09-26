@@ -85,9 +85,11 @@ function Read-FabricReleaseNotes
     $winDevRtInfo = $matches `
         | Where-Object { $_.Groups['winDevVer'].Success } `
         | ForEach-Object {
+            $version = [version]$_.Groups['winDevVer'].Value
             [pscustomobject]@{
                 Component = 'WinDevRuntime'
-                Version = [version]$_.Groups['winDevVer'].Value
+                Version = $version
+                ThreePartVersion = [version]($version.ToString(3))
                 Uri = [uri]$_.Groups['winDevUrl'].Value
             }
         }
@@ -96,9 +98,11 @@ function Read-FabricReleaseNotes
     $winSdkInfo = $matches `
         | Where-Object { $_.Groups['winSdkVer'].Success } `
         | ForEach-Object {
+            $version = [version]$_.Groups['winSdkVer'].Value
             [pscustomobject]@{
                 Component = 'WinSdk'
-                Version = [version]$_.Groups['winSdkVer'].Value
+                Version = $version
+                ThreePartVersion = [version]($version.ToString(3))
                 Uri = [uri]$_.Groups['winSdkUrl'].Value
             }
         }

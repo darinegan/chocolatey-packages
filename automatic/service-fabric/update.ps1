@@ -15,7 +15,7 @@ function global:au_SearchReplace {
 function global:au_GetLatest {
     $sfInfo = Get-FabricUpdateInfo
     $Latest = @{
-        Version = [version]$sfInfo.WinDevRuntime.Version.ToString(3)
+        Version = $sfInfo.WinDevRuntime.ThreePartVersion
         URL32 = $sfInfo.WinDevRuntime.Uri.AbsoluteUri
         ChecksumType32 = 'sha256'
     }
