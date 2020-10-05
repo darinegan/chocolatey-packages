@@ -1,10 +1,14 @@
-﻿function Get-FabricReleaseNotesFile
+﻿Set-StrictMode -Version 5
+
+. $PSScriptRoot\Functions\Get-CallerPreference.ps1
+
+function Get-FabricReleaseNotesFile
 {
     [CmdletBinding()]
     Param ()
 
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $ErrorActionPreference = 'Stop'
-    Set-StrictMode -Version 5
 
     Write-Debug 'Downloading list of Service Fabric release notes files from GitHub'
     $relNotesList = Invoke-RestMethod -Uri 'https://api.github.com/repos/microsoft/service-fabric/contents/release_notes'
@@ -35,8 +39,8 @@ function Read-FabricReleaseNotes
         [Parameter(Mandatory = $true)] [PSObject] $ReleaseNotesFileInfo
     )
 
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $ErrorActionPreference = 'Stop'
-    Set-StrictMode -Version 5
 
     if ($ReleaseNotesFileInfo.name -notlike '*.md')
     {
@@ -130,8 +134,8 @@ function Write-FabricCachedUpdateInfo
         [Parameter(Mandatory = $true)] [PSObject] $FabricUpdateInfo
     )
 
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $ErrorActionPreference = 'Stop'
-    Set-StrictMode -Version 5
 
     $timestamp = Get-Date
     $payload = [pscustomobject]@{
@@ -149,8 +153,8 @@ function Read-FabricCachedUpdateInfo
     [CmdletBinding()]
     Param ()
 
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $ErrorActionPreference = 'Stop'
-    Set-StrictMode -Version 5
 
     $cachePath = $script:FabricCachedUpdateInfoPath
     if (Test-Path -Path $script:FabricCachedUpdateInfoPath)
@@ -182,8 +186,8 @@ function Get-FabricUpdateInfo
     [CmdletBinding()]
     Param ()
 
+    Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $ErrorActionPreference = 'Stop'
-    Set-StrictMode -Version 5
 
     $sfInfo = Read-FabricCachedUpdateInfo
     if ($null -eq $sfInfo)
@@ -205,5 +209,5 @@ function Get-RemoteChecksumFast([string] $Url, $Algorithm='sha256', $Headers)
     & (Get-Command -Name Get-RemoteChecksum).ScriptBlock.GetNewClosure() @PSBoundParameters
 }
 
-$script:FabricCachedUpdateInfoPath = "$PSScriptRoot\..\sfinfo.clixml"
+$script:FabricCachedUpdateInfoPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$PSScriptRoot\..\..\..\sfinfo.clixml")
 $script:FabricCacheMaxAge = [timespan]::FromHours(1)

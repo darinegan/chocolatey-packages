@@ -1,6 +1,5 @@
 Import-Module au
-
-. $PSScriptRoot\..\..\tools\sftools.ps1
+Import-Module $PSScriptRoot\..\..\tools\PSModules\ServiceFabricPackageTools\ServiceFabricPackageTools.psm1
 
 function global:au_SearchReplace {
     @{
