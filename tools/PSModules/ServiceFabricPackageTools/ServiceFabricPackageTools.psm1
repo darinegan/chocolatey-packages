@@ -184,12 +184,24 @@ function Read-FabricCachedUpdateInfo
 function Get-FabricUpdateInfo
 {
     [CmdletBinding()]
-    Param ()
+    Param
+    (
+        [switch] $IgnoreCache
+    )
 
     Get-CallerPreference -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     $ErrorActionPreference = 'Stop'
 
-    $sfInfo = Read-FabricCachedUpdateInfo
+    if ($IgnoreCache)
+    {
+        Write-Debug 'Ignoring cached info, as requested'
+        $sfInfo = $null
+    }
+    else
+    {
+        $sfInfo = Read-FabricCachedUpdateInfo
+    }
+
     if ($null -eq $sfInfo)
     {
         $relNotesInfos = Get-FabricReleaseNotesFile
