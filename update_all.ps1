@@ -9,7 +9,7 @@ $Options = [ordered]@{
     Force         = $false                                  #Force all packages
     Timeout       = 100                                     #Connection timeout in seconds
     UpdateTimeout = 1200                                    #Update timeout in seconds
-    Threads       = 1                                       #Number of background jobs to use; we use a shared state file so Threads>1 is prone to races
+    Threads       = 10                                      #Number of background jobs to use
     Push          = $Env:au_Push -eq 'true'                 #Push to chocolatey
     PluginPath    = ''                                      #Path to user plugins
 
