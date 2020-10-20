@@ -5,7 +5,7 @@
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
     <id>service-fabric</id>
     <title>Service Fabric</title>
-    <version>7.1.409</version>
+    <version>7.1.458</version>
     <authors>Microsoft</authors>
     <owners>Darin Egan</owners>
     <summary>Service Fabric is a distributed systems platform for packaging, deploying, and managing stateless and stateful distributed applications and containers at large scale.</summary>
