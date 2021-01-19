@@ -54,8 +54,8 @@ function Read-FabricReleaseNotes
     Write-Debug "Release notes file has $(($mdlines | Measure-Object).Count) lines"
 
     Write-Debug "Parsing release notes"
-    # Microsoft Azure Service Fabric 7.1 Fourth Refresh Release Notes
-    $patternCaption = '\s*(?<caption>Microsoft\s+Azure\s+Service\s+Fabric\s+(?<releaseName>.+))\s+Release\s+Notes\s*'
+    # # Microsoft Azure Service Fabric 7.1 Fourth Refresh Release Notes
+    $patternCaption = '\s*#\s*(?<caption>Microsoft\s+Azure\s+Service\s+Fabric\s+(?<releaseName>.+))\s+Release\s+Notes\s*'
     # || Windows Developer Set-up| 7.1.458.9590 | N/A | https://download.microsoft.com/download/e/3/c/e3ccf2e1-2c80-48b3-9a8d-ce0dbd67bb77/MicrosoftServiceFabric.7.1.458.9590.exe |
     $patternWinDevRuntime = '.+Windows\s+Developer\s+Set-up\s*\|\s*(?<winDevVer>[^\s]+)\s*\|.*(?<winDevUrl>https\:[^\s|]+).*'
     # |.NET SDK |Windows .NET SDK |4.1.458 |N/A | https://download.microsoft.com/download/e/3/c/e3ccf2e1-2c80-48b3-9a8d-ce0dbd67bb77/MicrosoftServiceFabricSDK.4.1.458.msi |
