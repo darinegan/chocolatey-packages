@@ -10,6 +10,7 @@ function global:au_SearchReplace {
         }
         'service-fabric-sdk.nuspec' = @{
             "(dependency\s+id=`"service-fabric`"\s+version=`")([^`"]+)" = "`${1}$($Latest.RuntimeVersion)"
+            "(releaseNotes>)[^<]*(</releaseNotes)" = "`${1}[$($Latest.ReleaseName) Release Notes]($($Latest.ReleaseNotesUrl))`${2}"
         }
      }
 }
@@ -25,6 +26,8 @@ function global:au_GetLatest {
         RuntimeVersion = $sfInfo.WinDevRuntime.ThreePartVersion
         URL32 = $sfInfo.WinSdk.Uri.AbsoluteUri
         ChecksumType32 = 'sha256'
+        ReleaseName = $sfInfo.Names.FullName
+        ReleaseNotesUrl = $sfInfo.ReleaseNotesUrl
     }
     return $Latest
 }
