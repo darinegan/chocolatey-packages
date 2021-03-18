@@ -27,7 +27,7 @@ function Get-FabricReleaseNotesFile
         }
     }
     
-    $relNotesInfos = $relNotesList | Select-Object -Property name, download_url, @{ Name = 'release'; Expression = $releaseParser }
+    $relNotesInfos = $relNotesList | Select-Object -Property name, download_url, html_url, @{ Name = 'release'; Expression = $releaseParser }
     $relNotesInfos | Write-Output
 }
 
@@ -120,6 +120,7 @@ function Read-FabricReleaseNotes
         Names = $caption
         WinDevRuntime = $winDevRtInfo
         WinSdk = $winSdkInfo
+        ReleaseNotesUrl = $ReleaseNotesFileInfo.html_url
     }
 
     $sfInfo | Format-List | Out-String -Width 250 | Write-Debug

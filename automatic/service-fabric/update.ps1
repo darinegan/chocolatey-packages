@@ -8,6 +8,9 @@ function global:au_SearchReplace {
             "(?i)^(\s*checksum\s*=\s*)'.*'" = "`${1}'$($Latest.Checksum32)'"
             "(?i)^(\s*checksumType\s*=\s*)'.*'" = "`${1}'$($Latest.ChecksumType32)'"
         }
+        'service-fabric.nuspec' = @{
+            "(releaseNotes>)[^<]*(</releaseNotes)" = "`${1}[$($Latest.ReleaseName) Release Notes]($($Latest.ReleaseNotesUrl))`${2}"
+        }
      }
 }
 
@@ -21,6 +24,8 @@ function global:au_GetLatest {
         Version = $sfInfo.WinDevRuntime.ThreePartVersion
         URL32 = $sfInfo.WinDevRuntime.Uri.AbsoluteUri
         ChecksumType32 = 'sha256'
+        ReleaseName = $sfInfo.Names.FullName
+        ReleaseNotesUrl = $sfInfo.ReleaseNotesUrl
     }
     return $Latest
 }
