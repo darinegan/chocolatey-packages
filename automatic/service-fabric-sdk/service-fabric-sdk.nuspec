@@ -24,7 +24,7 @@ Service Fabric is a distributed systems platform that makes it easy to package, 
     <projectSourceUrl>https://github.com/Microsoft/service-fabric</projectSourceUrl>
     <packageSourceUrl>https://github.com/darinegan/chocolatey-packages/tree/master/automatic/service-fabric-sdk</packageSourceUrl>
     <dependencies>
-      <dependency id="service-fabric" version="8.2.1235" />
+      <dependency id="service-fabric" version="8.2.1363" />
     </dependencies>
   </metadata>
   <files>
