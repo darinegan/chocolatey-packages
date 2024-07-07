@@ -14,7 +14,8 @@ function Get-FabricReleaseNotesFile
     $relNotesList = Invoke-RestMethod -Uri 'https://api.github.com/repos/microsoft/service-fabric/contents/release_notes'
 
     $releaseParser = {
-        # Service-Fabric-71CU5-releasenotes.md -> 71.5
+        # Service_Fabric_ReleaseNotes_101RTO.md -> 101.0
+        # Service_Fabric_ReleaseNotes_101CU3.md -> 101.3
         if ($_.name -match '[-_](?<v>\d+)(CU(?<cu>\d+))?')
         {
             $v = $matches['v']
@@ -26,7 +27,7 @@ function Get-FabricReleaseNotesFile
             $null
         }
     }
-    
+
     $relNotesInfos = $relNotesList | Select-Object -Property name, download_url, html_url, @{ Name = 'release'; Expression = $releaseParser }
     $relNotesInfos | Write-Output
 }
@@ -54,12 +55,16 @@ function Read-FabricReleaseNotes
     Write-Debug "Release notes file has $(($mdlines | Measure-Object).Count) lines"
 
     Write-Debug "Parsing release notes"
-    # # Microsoft Azure Service Fabric 7.1 Fourth Refresh Release Notes
+    # # Microsoft Azure Service Fabric 10.1 Cumulative Update 3.0 Release Notes
     $patternCaption = '\s*#\s*(?<caption>Microsoft\s+Azure\s+Service\s+Fabric\s+(?<releaseName>.+))\s+Release\s+Notes\s*'
-    # || Windows Developer Set-up| 7.1.458.9590 | N/A | https://download.microsoft.com/download/e/3/c/e3ccf2e1-2c80-48b3-9a8d-ce0dbd67bb77/MicrosoftServiceFabric.7.1.458.9590.exe |
-    $patternWinDevRuntime = '.+Windows\s+Developer\s+Set-up\s*\|\s*(?<winDevVer>[^\s]+)\s*\|.*(?<winDevUrl>https\:[^\s|]+).*'
-    # |.NET SDK |Windows .NET SDK |4.1.458 |N/A | https://download.microsoft.com/download/e/3/c/e3ccf2e1-2c80-48b3-9a8d-ce0dbd67bb77/MicrosoftServiceFabricSDK.4.1.458.msi |
-    $patternWinSdk = '.+Windows\s+\.NET\s+SDK\s*\|\s*(?<winSdkVer>[^\s]+)\s*\|.*(?<winSdkUrl>https\:[^\s|]+).*'
+    # Runtime: https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabric.10.1.1951.9590.exe
+    # Run Time:
+    # https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabric.10.1.2175.9590.exe
+    $patternWinDevRuntime = '(Run.?time\:\s+)?(?<winDevUrl>https\:[^\s]+/MicrosoftServiceFabric.(?<winDevVer>[0-9.]+).exe)'
+    # SDK: https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabricSDK.7.1.1951.msi
+    # SDK:
+    # https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabricSDK.7.1.2175.msi
+    $patternWinSdk = '(SDK\:\s+)?(?<winSdkUrl>https\:[^\s]+/MicrosoftServiceFabricSDK.(?<winSdkVer>[0-9.]+).msi)'
     $fullPattern = (@($patternCaption, $patternWinDevRuntime, $patternWinSdk) | ForEach-Object { "(^${_}$)" }) -join '|'
     Write-Debug "Full parsing pattern: $fullPattern"
     $matches = $mdlines | Select-String -Pattern $fullPattern | Select-Object -ExpandProperty Matches
