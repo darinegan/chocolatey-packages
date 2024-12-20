@@ -5,7 +5,7 @@
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
     <id>smimesign</id>
     <title>smimesign (S/MIME Sign)</title>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <authors>GitHub</authors>
     <owners>Darin Egan</owners>
     <summary>Smimesign is an S/MIME signing utility that is compatible with Git.</summary>
