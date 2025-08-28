@@ -1,0 +1,60 @@
+name: Master Build
+
+on:
+  push:
+    branches: [ master ]
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: '0 6 * * *'
+
+jobs:
+  update:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+        
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+      
+    - name: Setup PowerShell modules
+      shell: powershell
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        Install-PackageProvider -Name NuGet -Force
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+        Install-Module chocolatey-au -Scope CurrentUser -Force
+        
+    - name: Install Chocolatey
+      shell: powershell
+      run: |
+        if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          refreshenv
+        }
+        
+    - name: Update packages
+      shell: powershell
+      run: |
+        $ErrorActionPreference = 'Continue'
+        .\update_all.ps1
+      env:
+        au_Push: ${{ secrets.AU_PUSH }}
+        github_api_key: ${{ secrets.GITHUB_TOKEN }}
+        github_user_repo: ${{ github.repository }}
+        gist_id: ${{ secrets.GIST_ID }}
+        gist_id_test: ${{ secrets.GIST_ID_TEST }}
+        mail_user: ${{ secrets.MAIL_USER }}
+        mail_pass: ${{ secrets.MAIL_PASS }}
+        mail_server: ${{ secrets.MAIL_SERVER }}
+        mail_port: ${{ secrets.MAIL_PORT }}
+        mail_enablessl: ${{ secrets.MAIL_ENABLESSL }}
+        api_key: ${{ secrets.CHOCOLATEY_API_KEY }}
