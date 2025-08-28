@@ -29,7 +29,7 @@ jobs:
         Set-ExecutionPolicy Bypass -Scope Process -Force
         Install-PackageProvider -Name NuGet -Force
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-        Install-Module au -Scope CurrentUser -Force
+        Install-Module chocolatey-au -Scope CurrentUser -Force
         
     - name: Install Chocolatey
       shell: powershell
