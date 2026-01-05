@@ -5,7 +5,7 @@
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
     <id>service-fabric</id>
     <title>Service Fabric</title>
-    <version>11.1.208</version>
+    <version>11.2.274</version>
     <authors>Microsoft</authors>
     <owners>Darin Egan</owners>
     <summary>Service Fabric is a distributed systems platform for packaging, deploying, and managing stateless and stateful distributed applications and containers at large scale.</summary>
@@ -18,7 +18,7 @@ Service Fabric is a distributed systems platform that makes it easy to package, 
     <licenseUrl>https://github.com/Microsoft/service-fabric/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <iconUrl>https://cdn.jsdelivr.net/gh/darinegan/chocolatey-packages@latest/icons/service-fabric.png</iconUrl>
-    <releaseNotes>[Microsoft Azure Service Fabric 11.1 (Auto Upgrade) Release Notes](https://github.com/microsoft/service-fabric/blob/master/release_notes/Service_Fabric_ReleaseNotes_111.md)</releaseNotes>
+    <releaseNotes>[Microsoft Azure Service Fabric 11 CU2 (Auto Upgrade) Release Notes](https://github.com/microsoft/service-fabric/blob/master/release_notes/Service_Fabric_ReleaseNotes_112.md)</releaseNotes>
     <docsUrl>https://docs.microsoft.com/azure/service-fabric</docsUrl>
     <bugTrackerUrl>https://github.com/azure/service-fabric-issues</bugTrackerUrl>
     <projectSourceUrl>https://github.com/Microsoft/service-fabric</projectSourceUrl>
