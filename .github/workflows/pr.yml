@@ -1,0 +1,43 @@
+name: PR Build
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup PowerShell modules
+      shell: powershell
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        Install-PackageProvider -Name NuGet -Force
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+        Install-Module chocolatey-au -Scope CurrentUser -Force
+        
+    - name: Install Chocolatey
+      shell: powershell
+      run: |
+        if (!(Get-Command choco -ErrorAction SilentlyContinue)) {
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          refreshenv
+        }
+        
+    - name: Test packages
+      shell: powershell
+      run: |
+        $ErrorActionPreference = 'Continue'
+        .\test_all.ps1 -ThrowOnErrors
+      env:
+        au_Push: false
+        github_api_key: ${{ secrets.GITHUB_TOKEN }}
+        github_user_repo: ${{ github.repository }}
+        gist_id: ${{ secrets.GIST_ID }}
+        gist_id_test: ${{ secrets.GIST_ID_TEST }}
