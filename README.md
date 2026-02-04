@@ -143,7 +143,7 @@ To test specific packages:
 To test a random subset (useful for CI):
 
 ```powershell
-.\test_all.ps1 -Name 'random 3'  # Tests a random 1/3 of packages
+.\test_all.ps1 -Name 'random 3'  # Divides packages into 3 groups, tests one random group
 ```
 
 ## Adding a New Package
@@ -190,7 +190,7 @@ To test a random subset (useful for CI):
 
 5. Add your package icon to the `icons/` folder
 
-**Note**: Do NOT use `choco new --auto` for AU packages. AU doesn't require automatic package tokens.
+**Note**: Do NOT use `choco new --auto` for AU packages. The `--auto` flag creates packages with special tokens (like `{{PackageName}}`, `{{DownloadUrl}}`) for the old automatic package format. AU uses a different approach with update scripts and doesn't need these tokens.
 
 ### Adding a Manual Package
 
