@@ -44,9 +44,16 @@ jobs:
         shell: powershell
         run: |
           Import-Module Chocolatey-AU
-          $cmds = Get-Command -Module Chocolatey-AU | Select-Object -ExpandProperty Name
+
+          # Include aliases: Chocolatey-AU exports 'updateall' and 'lsau' as
+          # Set-Alias aliases wrapping their full-name counterparts, so they
+          # won't appear with -CommandType Function alone.
+          $cmds = Get-Command -Module Chocolatey-AU -CommandType Function, Alias |
+                    Select-Object -ExpandProperty Name
           Write-Host "Exported commands: $($cmds -join ', ')"
-          $required = @('updateall', 'update', 'Get-AUPackages')
+
+          # Verify the core commands used by our update scripts are present.
+          $required = @('Update-AUPackages', 'updateall', 'update', 'Get-AUPackages')
           foreach ($cmd in $required) {
             if ($cmd -notin $cmds) {
               Write-Error "Required command '$cmd' not found in Chocolatey-AU module."
@@ -84,11 +91,13 @@ jobs:
           # push a new package to the Chocolatey community feed.
           $global:au_WhatIf = $true
 
-          $scriptPath = "automatic\${{ matrix.package }}\update.ps1"
-          Write-Host "Running: $scriptPath (WhatIf)"
-
+          # Chocolatey-AU's update function looks for a .nuspec in the CWD,
+          # so we must cd into the package directory before invoking the script.
+          $packageDir = Join-Path $env:GITHUB_WORKSPACE "automatic\${{ matrix.package }}"
+          Push-Location $packageDir
           try {
-            & $scriptPath
+            Write-Host "Running update.ps1 from: $packageDir (WhatIf)"
+            & ".\update.ps1"
           } catch {
             $msg = $_.Exception.Message
             # Treat failures caused by unreachable upstream URLs (network) as
@@ -100,4 +109,6 @@ jobs:
             } else {
               throw
             }
+          } finally {
+            Pop-Location
           }
