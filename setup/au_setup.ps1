@@ -11,7 +11,9 @@ if ($refreshenv -ne $null -and $refreshenv.CommandType -ne 'Application') {
   Write-Warning "We detected that you do not have the Chocolatey PowerShell profile installed, which is necessary for 'refreshenv' to work in PowerShell."
 }
 
-Install-PackageProvider -Name NuGet -Force
-Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-Install-Module au -Scope AllUsers
-Get-Module au -ListAvailable | select Name, Version
+# Chocolatey-AU is the maintained successor to majkinetor/au.
+# https://github.com/chocolatey-community/au
+# https://community.chocolatey.org/packages/chocolatey-au
+choco install chocolatey-au -y
+
+Get-Module Chocolatey-AU -ListAvailable | Select-Object Name, Version

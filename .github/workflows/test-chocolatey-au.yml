@@ -1,0 +1,114 @@
+name: Test Chocolatey-AU Migration
+
+on:
+  push:
+    branches:
+      - main
+      - 'copilot/**'
+    paths:
+      - 'setup/au_setup.ps1'
+      - 'update_all.ps1'
+      - 'automatic/**/update.ps1'
+      - '.github/workflows/test-chocolatey-au.yml'
+  pull_request:
+    paths:
+      - 'setup/au_setup.ps1'
+      - 'update_all.ps1'
+      - 'automatic/**/update.ps1'
+      - '.github/workflows/test-chocolatey-au.yml'
+  workflow_dispatch:
+
+jobs:
+  test-module:
+    name: Verify Chocolatey-AU module
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Chocolatey-AU
+        shell: powershell
+        run: choco install chocolatey-au -y --no-progress
+
+      - name: Verify Chocolatey-AU module is available
+        shell: powershell
+        run: |
+          $module = Get-Module Chocolatey-AU -ListAvailable
+          if (-not $module) {
+            Write-Error 'Chocolatey-AU module not found after installation.'
+            exit 1
+          }
+          Write-Host "Chocolatey-AU $($module.Version) is available."
+
+      - name: Import Chocolatey-AU and list exported commands
+        shell: powershell
+        run: |
+          Import-Module Chocolatey-AU
+
+          # Include aliases: Chocolatey-AU exports 'updateall' and 'lsau' as
+          # Set-Alias aliases wrapping their full-name counterparts, so they
+          # won't appear with -CommandType Function alone.
+          $cmds = Get-Command -Module Chocolatey-AU -CommandType Function, Alias |
+                    Select-Object -ExpandProperty Name
+          Write-Host "Exported commands: $($cmds -join ', ')"
+
+          # Verify the core commands used by our update scripts are present.
+          $required = @('Update-AUPackages', 'updateall', 'update', 'Get-AUPackages')
+          foreach ($cmd in $required) {
+            if ($cmd -notin $cmds) {
+              Write-Error "Required command '$cmd' not found in Chocolatey-AU module."
+              exit 1
+            }
+          }
+          Write-Host "All required commands are present."
+
+  test-update-scripts:
+    name: Smoke-test update scripts (WhatIf)
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - smimesign
+          - service-fabric
+          - service-fabric-sdk
+          - service-fabric-tools
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Chocolatey-AU
+        shell: powershell
+        run: choco install chocolatey-au -y --no-progress
+
+      - name: Run update.ps1 in WhatIf mode for ${{ matrix.package }}
+        shell: powershell
+        run: |
+          Import-Module Chocolatey-AU
+
+          # au_WhatIf puts Chocolatey-AU's update function into dry-run mode:
+          # it resolves the latest version and validates checksums but does not
+          # push a new package to the Chocolatey community feed.
+          $global:au_WhatIf = $true
+
+          # Chocolatey-AU's update function looks for a .nuspec in the CWD,
+          # so we must cd into the package directory before invoking the script.
+          $packageDir = Join-Path $env:GITHUB_WORKSPACE "automatic\${{ matrix.package }}"
+          Push-Location $packageDir
+          try {
+            Write-Host "Running update.ps1 from: $packageDir (WhatIf)"
+            & ".\update.ps1"
+          } catch {
+            $msg = $_.Exception.Message
+            # Treat failures caused by unreachable upstream URLs (network) as
+            # non-fatal — we only care that the module loads and the script
+            # parses correctly.  Any other error (e.g. missing module command)
+            # is re-thrown so the job fails.
+            if ($msg -match 'Unable to connect|WebException|timeout|NameResolution') {
+              Write-Warning "Network error ignored in CI: $msg"
+            } else {
+              throw
+            }
+          } finally {
+            Pop-Location
+          }
