@@ -1,4 +1,4 @@
-Import-Module au
+Import-Module chocolatey-au
 
 function global:au_SearchReplace {
     @{

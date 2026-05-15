@@ -1,4 +1,4 @@
-Import-Module au
+Import-Module chocolatey-au
 Import-Module $PSScriptRoot\..\..\tools\PSModules\ServiceFabricPackageTools\ServiceFabricPackageTools.psm1
 
 function global:au_SearchReplace {
