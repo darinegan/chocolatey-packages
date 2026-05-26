@@ -5,6 +5,9 @@ param([string[]] $Name, [string] $ForcedPackages, [string] $Root = "$PSScriptRoo
 
 if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
 
+$runInfoPath = "$PSScriptRoot\update_info.xml"
+$runInfoSupported = $PSVersionTable.PSEdition -ne 'Core'
+
 $Options = [ordered]@{
     WhatIf        = $au_WhatIf                              #Whatif all packages
     Force         = $false                                  #Force all packages
@@ -32,46 +35,50 @@ $Options = [ordered]@{
         Github_UserRepo = $Env:github_user_repo             #User repo to be link to commits
         Path = "$PSScriptRoot\Update-History.md"            #Path where to save history
     }
+}
 
-    Gist = @{
-        Id     = $Env:gist_id                               #Your gist id; leave empty for new private or anonymous gist
-        ApiKey = $Env:github_api_key                        #Your github api key - if empty anoymous gist is created
+if (![string]::IsNullOrWhiteSpace($Env:github_api_key)) {
+    $Options.Gist = @{
+        Id     = $Env:gist_id                               #Your gist id; leave empty for new private gist
+        ApiKey = $Env:github_api_key                        #Your github api key with gist scope
         Path   = "$PSScriptRoot\Update-AUPackages.md", "$PSScriptRoot\Update-History.md"       #List of files to add to the gist
     }
+}
 
-    Git = @{
-        User     = ''                                       #Git username, leave empty if github api key is used
-        Password = $Env:github_api_key                      #Password if username is not empty, otherwise api key
-    }
+$Options.Git = @{
+    User     = ''                                           #Git username, leave empty if github api key is used
+    Password = $Env:github_api_key                          #Password if username is not empty, otherwise api key
+}
 
-    RunInfo = @{
+if ($runInfoSupported) {
+    $Options.RunInfo = @{
         Exclude = 'password', 'apikey', 'apitoken'          #Option keys which contain those words will be removed
-        Path    = "$PSScriptRoot\update_info.xml"           #Path where to save the run info
+        Path    = $runInfoPath                              #Path where to save the run info
     }
+}
 
-    Mail = if ($Env:mail_user) {
-            @{
-                To         = $Env:mail_user
-                Server     = $Env:mail_server
-                UserName   = $Env:mail_user
-                Password   = $Env:mail_pass
-                Port       = $Env:mail_port
-                EnableSsl  = $Env:mail_enablessl -eq 'true'
-                Attachment = "$PSScriptRoot\update_info.xml"
-                UserMessage = ''
-                SendAlways  = $false                        #Send notifications every time
-             }
-           } else {}
-
-    ForcedPackages = $ForcedPackages -split ' '
-    BeforeEach = {
-        param($PackageName, $Options )
-        $p = $Options.ForcedPackages | ? { $_ -match "^${PackageName}(?:\:(.+))*$" }
-        if (!$p) { return }
-
-        $global:au_Force   = $true
-        $global:au_Version = ($p -split ':')[1]
+if ($Env:mail_user) {
+    $Options.Mail = @{
+        To         = $Env:mail_user
+        Server     = $Env:mail_server
+        UserName   = $Env:mail_user
+        Password   = $Env:mail_pass
+        Port       = $Env:mail_port
+        EnableSsl  = $Env:mail_enablessl -eq 'true'
+        Attachment = if ($runInfoSupported) { $runInfoPath } else { @() }
+        UserMessage = ''
+        SendAlways  = $false                                #Send notifications every time
     }
+}
+
+$Options.ForcedPackages = $ForcedPackages -split ' '
+$Options.BeforeEach = {
+    param($PackageName, $Options )
+    $p = $Options.ForcedPackages | ? { $_ -match "^${PackageName}(?:\:(.+))*$" }
+    if (!$p) { return }
+
+    $global:au_Force   = $true
+    $global:au_Version = ($p -split ':')[1]
 }
 
 Get-ChildItem -Path $Root -Directory | Join-Path -ChildPath 'beforeall.ps1' | Get-Item -ErrorAction SilentlyContinue | ForEach-Object {
