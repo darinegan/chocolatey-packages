@@ -14,18 +14,25 @@ function global:au_SearchReplace {
 }
 
 function global:au_GetLatest {
-    $request = [System.Net.WebRequest]::Create('https://github.com/github/smimesign/releases/latest')
-    $request.AllowAutoRedirect = $true
-    $response = $request.GetResponse()
-    $responseUri = $response.ResponseUri
+    $releases = Invoke-RestMethod -Uri 'https://api.github.com/repos/github/smimesign/releases' -Headers @{ 'User-Agent' = 'Chocolatey-AU' }
+    $latestRelease = $releases |
+        Where-Object { !$_.draft -and $_.tag_name -match '^v?\d+(\.\d+){1,3}$' } |
+        Sort-Object { [version]($_.tag_name -replace '^v') } -Descending |
+        Select-Object -First 1
 
-    $tag = $responseUri.AbsolutePath | Split-Path -Leaf
+    if (!$latestRelease) { throw 'Could not find a stable smimesign release.' }
+
+    $tag = $latestRelease.tag_name
     $version = $tag -replace '^v?'
+    $asset32 = $latestRelease.assets | Where-Object { $_.name -eq "smimesign-windows-386-$tag.zip" } | Select-Object -First 1
+    $asset64 = $latestRelease.assets | Where-Object { $_.name -eq "smimesign-windows-amd64-$tag.zip" } | Select-Object -First 1
+
+    if (!$asset32 -or !$asset64) { throw "Could not find smimesign Windows assets for $tag." }
 
     $Latest = @{
         Version        = $version
-        URL32          = 'https://github.com/github/smimesign/releases/download/{0}/smimesign-windows-386-{0}.zip' -f $tag
-        URL64          = 'https://github.com/github/smimesign/releases/download/{0}/smimesign-windows-amd64-{0}.zip' -f $tag
+        URL32          = $asset32.browser_download_url
+        URL64          = $asset64.browser_download_url
         ChecksumType32 = 'sha256'
         ChecksumType64 = 'sha256'
     }
