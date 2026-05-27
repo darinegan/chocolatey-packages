@@ -3,7 +3,7 @@
 
 param([string[]] $Name, [string] $ForcedPackages, [string] $Root = "$PSScriptRoot\automatic")
 
-if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
+. (Join-Path $PSScriptRoot 'au_config.ps1')
 
 $runInfoPath = "$PSScriptRoot\update_info.xml"
 $runInfoSupported = $PSVersionTable.PSEdition -ne 'Core'
@@ -20,9 +20,7 @@ $Options = [ordered]@{
     Report = @{
         Type = 'markdown'                                   #Report type: markdown or text
         Path = "$PSScriptRoot\Update-AUPackages.md"         #Path where to save the report
-        Params= @{                                          #Report parameters:
-            Github_UserRepo = $Env:github_user_repo         #  Markdown: shows user info in upper right corner
-            NoAppVeyor  = $false                            #  Markdown: do not show AppVeyor build shield
+        Params= New-AuReportParams -Overrides @{            #Report parameters:
             UserMessage = "[History](#update-history)"       #  Markdown, Text: Custom user message to show
             NoIcons     = $false                            #  Markdown: don't show icon
             IconSize    = 32                                #  Markdown: icon size
@@ -37,12 +35,9 @@ $Options = [ordered]@{
     }
 }
 
-if (![string]::IsNullOrWhiteSpace($Env:github_api_key)) {
-    $Options.Gist = @{
-        Id     = $Env:gist_id                               #Your gist id; leave empty for new private gist
-        ApiKey = $Env:github_api_key                        #Your github api key with gist scope
-        Path   = "$PSScriptRoot\Update-AUPackages.md", "$PSScriptRoot\Update-History.md"       #List of files to add to the gist
-    }
+$gistOptions = New-AuGistOptions -Id $Env:gist_id -Path @("$PSScriptRoot\Update-AUPackages.md", "$PSScriptRoot\Update-History.md")
+if ($gistOptions) {
+    $Options.Gist = $gistOptions
 }
 
 $Options.Git = @{

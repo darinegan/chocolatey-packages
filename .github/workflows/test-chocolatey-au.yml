@@ -8,13 +8,17 @@ on:
       - 'copilot/**'
     paths:
       - 'setup/au_setup.ps1'
+      - 'au_config.ps1'
       - 'update_all.ps1'
+      - 'test_all.ps1'
       - 'automatic/**'
       - '.github/workflows/test-chocolatey-au.yml'
   pull_request:
     paths:
       - 'setup/au_setup.ps1'
+      - 'au_config.ps1'
       - 'update_all.ps1'
+      - 'test_all.ps1'
       - 'automatic/**'
       - '.github/workflows/test-chocolatey-au.yml'
   workflow_dispatch:
