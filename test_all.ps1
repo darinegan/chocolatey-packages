@@ -2,7 +2,7 @@
 
 param( [string[]] $Name, [string] $Root = "$PSScriptRoot\automatic", [switch]$ThrowOnErrors )
 
-if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
+. (Join-Path $PSScriptRoot 'au_config.ps1')
 $global:au_root = Resolve-Path $Root
 
 if (($Name.Length -gt 0) -and ($Name[0] -match '^random (.+)')) {
@@ -26,22 +26,16 @@ $options = [ordered]@{
     Report = @{
         Type = 'markdown'                                   #Report type: markdown or text
         Path = "$PSScriptRoot\Update-Force-Test-${n}.md"      #Path where to save the report
-        Params= @{                                          #Report parameters:
-            Github_UserRepo = $Env:github_user_repo         #  Markdown: shows user info in upper right corner
-            NoAppVeyor  = $false                            #  Markdown: do not show AppVeyor build shield
+        Params= New-AuReportParams -Overrides @{            #Report parameters:
             Title       = "Update Force Test - Group ${n}"
             UserMessage = "[Update report](https://gist.github.com/$Env:gist_id) | **USING AU NEXT VERSION**"       #  Markdown, Text: Custom user message to show
         }
     }
 }
 
-if (![string]::IsNullOrWhiteSpace($Env:github_api_key)) {
-    $options.Gist = @{
-        Id     = $Env:gist_id_test                          #Your gist id; leave empty for new private gist
-        ApiKey = $Env:github_api_key                        #Your github api key with gist scope
-        Path   = "$PSScriptRoot\Update-Force-Test-${n}.md"       #List of files to add to the gist
-        Description = "Update Force Test Report #powershell #chocolatey"
-    }
+$gistOptions = New-AuGistOptions -Id $Env:gist_id_test -Path "$PSScriptRoot\Update-Force-Test-${n}.md" -Description "Update Force Test Report #powershell #chocolatey"
+if ($gistOptions) {
+    $options.Gist = $gistOptions
 }
 
 $global:info = updateall -Name $Name -Options $Options
