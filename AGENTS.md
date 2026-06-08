@@ -18,10 +18,10 @@ This repository uses Chocolatey-AU and GitHub Actions to update, validate, pack,
 ## Documentation ownership
 
 - `README.md` owns the user-facing overview.
-- `CONTRIBUTING.md` owns canonical human contributor, maintainer, release, and repository-control instructions.
+- `CONTRIBUTING.md` owns canonical human contributor, maintainer, and release instructions.
 - `AGENTS.md` owns agent behavior only.
 
-Cross-reference these files instead of duplicating content. If you learn durable repository behavior or change automation behavior, update the most appropriate document so the next human or AI agent has less to rediscover.
+Cross-reference these files instead of duplicating content. Do not turn automated repository controls into human maintainer chores in CONTRIBUTING.md; document only the manual effort that remains. If you learn durable repository behavior or change automation behavior, update the most appropriate document so the next human or AI agent has less to rediscover.
 
 ## Self-documenting expectation
 

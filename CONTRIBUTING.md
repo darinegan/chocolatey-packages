@@ -27,28 +27,16 @@ Maintainers should not combine update and publish behavior in a single workflow.
 
 Manual publish runs must be dispatched from `master`; the publish workflow checks out protected `master` and will not run from feature branches.
 
-Publish-on-push should only be enabled after the required repository controls below are configured. Until then, publishing remains a manual environment-gated workflow dispatch.
+Publishing remains a manual environment-gated workflow dispatch until publish-on-push is enabled in a follow-up change.
 
-### Required repository controls
+### Maintainer responsibilities
 
-Before publish-on-push is enabled, maintainers must ensure:
+Repository controls are managed through GitHub settings and automation. Normal maintainer work should focus on the manual steps that cannot be safely automated:
 
-1. `master` requires pull request review.
-1. `master` blocks direct pushes and force pushes.
-1. The validation result job is a required status check.
-1. The default `GITHUB_TOKEN` permission is read-only, or each workflow uses explicit `permissions: {}`.
-1. The `chocolatey-publishing` environment exists with required reviewers.
-1. `CHOCOLATEY_API_KEY` is stored only as a `chocolatey-publishing` environment secret.
-1. External GitHub Actions are pinned to full commit SHAs and maintained through reviewed updates.
-
-Use `gh` to confirm the live repository controls before changing release automation:
-
-```powershell
-gh api repos/darinegan/chocolatey-packages/branches/master/protection
-gh api repos/darinegan/chocolatey-packages/environments
-gh api repos/darinegan/chocolatey-packages/actions/permissions
-gh api repos/darinegan/chocolatey-packages/actions/permissions/workflow
-```
+1. Review and merge automated update pull requests.
+1. Approve protected publishing deployments when packages should be released.
+1. Set or rotate automation secrets without pasting secret values into issues, pull requests, or chat.
+1. Manually dispatch update or publish workflows when needed.
 
 ### Required automation credentials
 
