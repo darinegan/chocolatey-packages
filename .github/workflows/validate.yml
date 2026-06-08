@@ -1,0 +1,147 @@
+name: Validate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-scope:
+    name: Detect scope
+    runs-on: windows-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      relevant: ${{ steps.detect.outputs.relevant }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+
+      - name: Detect scope
+        id: detect
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: .\.github\scripts\validate\detect-scope.ps1
+
+  verify-au:
+    name: Verify AU
+    needs: detect-scope
+    if: needs.detect-scope.outputs.relevant == 'true'
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+
+      - name: Install Chocolatey-AU
+        shell: powershell
+        run: choco install chocolatey-au -y --no-progress
+
+      - name: Verify AU
+        shell: powershell
+        run: .\.github\scripts\validate\check-au.ps1
+
+  smoke-test:
+    name: Smoke-test update
+    needs: detect-scope
+    if: needs.detect-scope.outputs.relevant == 'true'
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        item:
+          - smimesign
+          - service-fabric
+          - service-fabric-sdk
+          - service-fabric-tools
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+
+      - name: Install Chocolatey-AU
+        shell: powershell
+        run: choco install chocolatey-au -y --no-progress
+
+      - name: Run update in WhatIf mode
+        shell: powershell
+        env:
+          ITEM: ${{ matrix.item }}
+        run: .\.github\scripts\validate\whatif.ps1
+
+  pack:
+    name: Pack
+    needs: detect-scope
+    if: needs.detect-scope.outputs.relevant == 'true'
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        item:
+          - smimesign
+          - service-fabric
+          - service-fabric-sdk
+          - service-fabric-tools
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+
+      - name: Pack
+        shell: powershell
+        env:
+          ITEM: ${{ matrix.item }}
+        run: .\.github\scripts\validate\pack.ps1
+
+  workflow-security:
+    name: Check workflow security
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+
+      - name: Check workflow security
+        shell: pwsh
+        run: .\.github\scripts\validate\workflow-security.ps1
+
+  validation-result:
+    name: Validation result
+    needs:
+      - detect-scope
+      - verify-au
+      - smoke-test
+      - pack
+      - workflow-security
+    if: always()
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+
+      - name: Report result
+        shell: pwsh
+        env:
+          DETECT_RESULT: ${{ needs.detect-scope.result }}
+          PACK_RESULT: ${{ needs.pack.result }}
+          RELEVANT: ${{ needs.detect-scope.outputs.relevant }}
+          SECURITY_RESULT: ${{ needs.workflow-security.result }}
+          SMOKE_RESULT: ${{ needs.smoke-test.result }}
+          VERIFY_RESULT: ${{ needs.verify-au.result }}
+        run: .\.github\scripts\validate\result.ps1

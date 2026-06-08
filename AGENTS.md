@@ -1,6 +1,6 @@
 # Agent instructions
 
-This repository uses Chocolatey-AU and GitHub Actions to update, validate, pack, and publish Chocolatey packages.
+This repository uses Chocolatey-AU and GitHub Actions to update, validate, pack, and publish.
 
 ## Operating rules
 
@@ -8,7 +8,7 @@ This repository uses Chocolatey-AU and GitHub Actions to update, validate, pack,
   - update workflow: update package source files and open a pull request;
   - validation workflow: validate pull requests without secrets;
   - publish workflow: pack and publish reviewed sources from protected `master`.
-- Do not use `pull_request_target` for package automation.
+- Do not use `pull_request_target` for automation.
 - Do not add secrets to pull request validation.
 - Do not combine `.\update_all.ps1` with `choco push` in the same workflow.
 - Use `gh` to validate live repository controls before changing release automation.

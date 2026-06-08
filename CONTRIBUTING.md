@@ -13,21 +13,23 @@ Please note that this project is released with a [Code of Conduct][code-of-condu
 1. [Push your change][pushing-changes].
 1. Submit a [pull request][submit-a-pr].
 
-Pull requests are validated by the **Validate Chocolatey packages** workflow. That workflow is intentionally secret-free so it can safely run for forked pull requests.
+Pull requests are validated by the **Validate** workflow. That workflow is intentionally secret-free so it can safely run for forked pull requests.
 
 ## Maintainer release workflow
 
 The release automation is intentionally split into mutually exclusive responsibilities:
 
-- **Update Chocolatey package sources** runs `.\update_all.ps1` without publishing and opens an update pull request.
-- **Validate Chocolatey packages** validates pull requests and is the required merge gate.
-- **Publish Chocolatey packages** only packs and pushes sources that already reached protected `master`.
+- **Update** runs `.\update_all.ps1` without publishing and opens an update pull request.
+- **Validate** validates pull requests and is the required merge gate.
+- **Publish** only packs and pushes sources that already reached protected `master`.
 
 Maintainers should not combine update and publish behavior in a single workflow. Publishing to public chocolatey.org must happen through the publish workflow, using `CHOCOLATEY_PUSH_URL=https://push.chocolatey.org/` and the protected `CHOCOLATEY_API_KEY` environment secret.
 
 Manual publish runs must be dispatched from `master`; the publish workflow checks out protected `master` and will not run from feature branches.
 
 Publishing remains a manual environment-gated workflow dispatch until publish-on-push is enabled in a follow-up change.
+
+Update diagnostics are not uploaded as workflow artifacts. This repository is public, and artifacts cannot be restricted to one maintainer.
 
 ### Maintainer responsibilities
 
