@@ -1,0 +1,166 @@
+name: Publish Chocolatey packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Optional package IDs to publish, separated by commas or spaces. Leave empty to detect from the triggering commit or publish all on manual runs.'
+        required: false
+        default: ''
+
+permissions: {}
+
+concurrency:
+  group: publish-chocolatey-packages
+  cancel-in-progress: false
+
+env:
+  CHOCOLATEY_PUSH_URL: https://push.chocolatey.org/
+
+jobs:
+  publish:
+    name: Pack and publish packages
+    if: github.repository == 'darinegan/chocolatey-packages' && github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+    environment: chocolatey-publishing
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Select packages
+        id: select
+        shell: pwsh
+        env:
+          DISPATCH_PACKAGES: ${{ inputs.packages || '' }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $packageRoot = Join-Path $env:GITHUB_WORKSPACE 'automatic'
+          $allPackages = @(
+            Get-ChildItem -Path $packageRoot -Directory |
+              Where-Object { Test-Path (Join-Path $_.FullName "$($_.Name).nuspec") } |
+              Select-Object -ExpandProperty Name
+          )
+
+          if ($allPackages.Count -eq 0) {
+            throw 'No automatic packages were found.'
+          }
+
+          $selected = @()
+          if (![string]::IsNullOrWhiteSpace($env:DISPATCH_PACKAGES)) {
+            $requested = @($env:DISPATCH_PACKAGES -split '[,\s]+' | Where-Object { $_ })
+            foreach ($package in $requested) {
+              if ($package -notin $allPackages) {
+                throw "Unknown package '$package'. Allowed packages: $($allPackages -join ', ')"
+              }
+            }
+            $selected = $requested
+          } elseif ($env:GITHUB_EVENT_NAME -eq 'push') {
+            $before = '${{ github.event.before }}'
+            $after = '${{ github.sha }}'
+            if ([string]::IsNullOrWhiteSpace($before) -or $before -match '^0+$') {
+              Write-Warning 'No reliable base SHA is available; selecting all packages.'
+              $selected = $allPackages
+            } else {
+              $files = @(git diff --name-only "$before..$after")
+              $selected = @(
+                foreach ($file in $files) {
+                  $normalized = $file -replace '\\', '/'
+                  if ($normalized -match '^automatic/([^/]+)/') {
+                    $Matches[1]
+                  }
+                }
+              ) | Sort-Object -Unique
+            }
+          } else {
+            $selected = $allPackages
+          }
+
+          $selected = @($selected | Where-Object { $_ -in $allPackages } | Sort-Object -Unique)
+          if ($selected.Count -eq 0) {
+            "packages=" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            Write-Host 'No packages selected for publishing.'
+            exit 0
+          }
+
+          "packages=$($selected -join ',')" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Selected packages: $($selected -join ', ')"
+
+      - name: Pack and push packages
+        if: steps.select.outputs.packages != ''
+        shell: powershell
+        env:
+          CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+          SELECTED_PACKAGES: ${{ steps.select.outputs.packages }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          if ([string]::IsNullOrWhiteSpace($env:CHOCOLATEY_API_KEY)) {
+            throw 'CHOCOLATEY_API_KEY must be configured as a protected environment secret.'
+          }
+          if ([string]::IsNullOrWhiteSpace($env:CHOCOLATEY_PUSH_URL)) {
+            throw 'CHOCOLATEY_PUSH_URL must be set to the Chocolatey push endpoint.'
+          }
+
+          $outputDir = Join-Path $env:GITHUB_WORKSPACE 'automatic\_output'
+          if (Test-Path $outputDir) {
+            Remove-Item $outputDir -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path $outputDir | Out-Null
+
+          choco apikey --key $env:CHOCOLATEY_API_KEY --source $env:CHOCOLATEY_PUSH_URL
+          if ($LASTEXITCODE -ne 0) {
+            throw "choco apikey failed with exit code $LASTEXITCODE."
+          }
+
+          $packages = @($env:SELECTED_PACKAGES -split ',' | Where-Object { $_ })
+          foreach ($package in $packages) {
+            $packageDir = Join-Path $env:GITHUB_WORKSPACE "automatic\$package"
+            $nuspecPath = Join-Path $packageDir "$package.nuspec"
+            [xml]$nuspec = Get-Content -Path $nuspecPath
+            $id = $nuspec.package.metadata.id
+            $version = $nuspec.package.metadata.version
+
+            Push-Location $packageDir
+            try {
+              choco pack ".\$package.nuspec" --out "$outputDir"
+              if ($LASTEXITCODE -ne 0) {
+                throw "choco pack failed for $package with exit code $LASTEXITCODE."
+              }
+            } finally {
+              Pop-Location
+            }
+
+            $nupkgPath = Join-Path $outputDir "$id.$version.nupkg"
+            if (!(Test-Path $nupkgPath)) {
+              throw "Expected package was not produced: $nupkgPath"
+            }
+
+            $encodedId = [System.Uri]::EscapeDataString($id)
+            $encodedVersion = [System.Uri]::EscapeDataString($version)
+            $queryUrl = "https://community.chocolatey.org/api/v2/Packages(Id='$encodedId',Version='$encodedVersion')"
+            $alreadyPublished = $false
+            try {
+              Invoke-WebRequest -Uri $queryUrl -UseBasicParsing -Method Get | Out-Null
+              $alreadyPublished = $true
+            } catch {
+              $response = $_.Exception.Response
+              if ($null -eq $response -or [int]$response.StatusCode -ne 404) {
+                throw
+              }
+            }
+
+            if ($alreadyPublished) {
+              Write-Host "$id $version is already published; skipping push."
+              continue
+            }
+
+            choco push "$nupkgPath" --source $env:CHOCOLATEY_PUSH_URL
+            if ($LASTEXITCODE -ne 0) {
+              throw "choco push failed for $nupkgPath with exit code $LASTEXITCODE."
+            }
+          }

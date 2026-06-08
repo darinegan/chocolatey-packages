@@ -1,0 +1,115 @@
+name: Update Chocolatey package sources
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: update-chocolatey-package-sources
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Update package sources
+    if: github.repository == 'darinegan/chocolatey-packages'
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Chocolatey-AU
+        shell: powershell
+        run: choco install chocolatey-au -y --no-progress
+
+      - name: Run Chocolatey-AU update
+        shell: powershell
+        env:
+          au_Push: 'false'
+          github_user_repo: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($name in 'api_key', 'github_api_key', 'gist_id', 'mail_user', 'mail_server', 'mail_pass', 'mail_port', 'mail_enablessl', 'CHOCOLATEY_API_KEY', 'CHOCOLATEY_PUSH_URL') {
+            if (![string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              throw "Secret-like environment variable '$name' must not be set during update."
+            }
+          }
+
+          .\update_all.ps1
+
+      - name: Detect package source changes
+        id: changes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $changes = @(git status --short -- automatic)
+          if ($changes.Count -eq 0) {
+            "changed=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            Write-Host 'No package source changes detected.'
+            exit 0
+          }
+
+          "changed=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host 'Package source changes detected:'
+          $changes | ForEach-Object { Write-Host $_ }
+
+      - name: Upload AU diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # actions/upload-artifact v4
+        with:
+          name: chocolatey-au-update-diagnostics
+          path: |
+            Update-AUPackages.md
+            Update-History.md
+            update_info.xml
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Create or update package update PR
+        if: steps.changes.outputs.changed == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.UPDATE_PR_TOKEN }}
+          UPDATE_BRANCH: automation/chocolatey-package-updates
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ([string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+            throw 'UPDATE_PR_TOKEN is required so the update PR triggers normal pull_request validation.'
+          }
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B $env:UPDATE_BRANCH
+          git add -- automatic
+
+          $staged = @(git diff --cached --name-only)
+          if ($staged.Count -eq 0) {
+            Write-Host 'No staged package source changes after filtering.'
+            exit 0
+          }
+
+          git commit -m 'Update Chocolatey package sources'
+          git remote set-url origin "https://x-access-token:$env:GH_TOKEN@github.com/${{ github.repository }}.git"
+          git push --force origin "HEAD:$env:UPDATE_BRANCH"
+
+          $prNumber = gh pr list --repo '${{ github.repository }}' --head $env:UPDATE_BRANCH --base master --state open --json number --jq '.[0].number'
+          $title = 'Update Chocolatey package sources'
+          $body = @(
+            'This automated PR updates Chocolatey package sources using `.\update_all.ps1`.'
+            ''
+            'Publishing is intentionally handled by the separate publish workflow after these changes are reviewed, validated, and merged to `master`.'
+          ) -join [Environment]::NewLine
+
+          if ([string]::IsNullOrWhiteSpace($prNumber)) {
+            gh pr create --repo '${{ github.repository }}' --base master --head $env:UPDATE_BRANCH --title $title --body $body
+          } else {
+            gh pr edit $prNumber --repo '${{ github.repository }}' --title $title --body $body
+          }
