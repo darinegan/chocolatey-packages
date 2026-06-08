@@ -15,6 +15,14 @@ Please note that this project is released with a [Code of Conduct][code-of-condu
 
 Pull requests are validated by the **Validate** workflow. That workflow is intentionally secret-free so it can safely run for forked pull requests.
 
+## Issue tracking
+
+Use GitHub Issues as the durable unit of work for non-trivial changes.
+
+1. Start from an existing issue or create one before opening a substantial pull request.
+1. Include a closing reference in the pull request body when the pull request fully resolves the issue.
+1. If review, investigation, or implementation discovers follow-up work, file a separate issue for that work instead of leaving it only in chat, comments, or local notes.
+
 ## Maintainer release workflow
 
 The release automation is intentionally split into mutually exclusive responsibilities:
