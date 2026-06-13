@@ -6,7 +6,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..\..\..')
 $violations = New-Object System.Collections.Generic.List[string]
 
-$workflowFiles = Get-ChildItem -Path (Join-Path $repoRoot '.github\workflows') -Filter '*.yml' -File
+$workflowRoot = Join-Path $repoRoot '.github\workflows'
+$workflowFiles = @(
+    Get-ChildItem -Path $workflowRoot -Filter '*.yml' -File
+    Get-ChildItem -Path $workflowRoot -Filter '*.yaml' -File
+) | Sort-Object FullName
 foreach ($file in $workflowFiles) {
     $lines = Get-Content -Path $file.FullName
     $content = $lines -join "`n"

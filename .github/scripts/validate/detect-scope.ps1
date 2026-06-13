@@ -20,6 +20,23 @@ function Set-ActionOutput {
     "$Name=$Value" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 }
 
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
+$itemRoot = Join-Path $repoRoot 'automatic'
+$items = @(
+    Get-ChildItem -Path $itemRoot -Directory |
+        Where-Object { Test-Path (Join-Path $_.FullName "$($_.Name).nuspec") } |
+        Sort-Object Name |
+        ForEach-Object { $_.Name }
+)
+
+if ($items.Count -eq 0) {
+    throw 'No items were discovered under automatic/.'
+}
+
+$itemsJson = '[' + (($items | ForEach-Object { $_ | ConvertTo-Json -Compress }) -join ',') + ']'
+Set-ActionOutput -Name 'items' -Value $itemsJson
+Write-Host "Discovered items: $($items -join ', ')"
+
 if ($env:EVENT_NAME -ne 'pull_request') {
     Set-ActionOutput -Name 'relevant' -Value 'true'
     Write-Host 'Manual validation run; running all validation.'
@@ -40,7 +57,7 @@ $patterns = @(
     '^update_all\.ps1$',
     '^test_all\.ps1$',
     '^tools/PSModules/',
-    '^\.github/workflows/(validate|update|publish)\.yml$',
+    '^\.github/workflows/(validate|update|publish)\.ya?ml$',
     '^\.github/scripts/',
     '^\.github/dependabot\.yml$'
 )

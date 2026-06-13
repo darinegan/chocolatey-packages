@@ -18,10 +18,11 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
+      items: ${{ steps.detect.outputs.items }}
       relevant: ${{ steps.detect.outputs.relevant }}
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
 
       - name: Detect scope
         id: detect
@@ -42,7 +43,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
 
       - name: Install Chocolatey-AU
         shell: powershell
@@ -62,14 +63,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        item:
-          - smimesign
-          - service-fabric
-          - service-fabric-sdk
-          - service-fabric-tools
+        item: ${{ fromJSON(needs.detect-scope.outputs.items) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
 
       - name: Install Chocolatey-AU
         shell: powershell
@@ -91,14 +88,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        item:
-          - smimesign
-          - service-fabric
-          - service-fabric-sdk
-          - service-fabric-tools
+        item: ${{ fromJSON(needs.detect-scope.outputs.items) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
 
       - name: Pack
         shell: powershell
@@ -113,7 +106,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
 
       - name: Check workflow security
         shell: pwsh
@@ -133,7 +126,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # actions/checkout v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
 
       - name: Report result
         shell: pwsh
