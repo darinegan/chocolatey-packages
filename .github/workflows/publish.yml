@@ -1,0 +1,51 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      items:
+        description: 'Optional item IDs to publish, separated by commas or spaces. Leave empty to publish all on manual runs.'
+        required: false
+        default: ''
+
+permissions: {}
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+env:
+  CHOCOLATEY_PUSH_URL: https://push.chocolatey.org/
+
+jobs:
+  publish:
+    name: Publish
+    if: github.repository == 'darinegan/chocolatey-packages' && github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+    environment: chocolatey-publishing
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Select
+        id: select
+        shell: pwsh
+        env:
+          AFTER_SHA: ${{ github.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          DISPATCH_ITEMS: ${{ inputs.items || '' }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: .\.github\scripts\publish\select.ps1
+
+      - name: Push
+        if: steps.select.outputs.items != ''
+        shell: powershell
+        env:
+          CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+          SELECTED_ITEMS: ${{ steps.select.outputs.items }}
+        run: .\.github\scripts\publish\push.ps1

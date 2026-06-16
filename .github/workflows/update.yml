@@ -1,0 +1,47 @@
+name: Update
+
+on:
+  schedule:
+    - cron: '0 3,15 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: update
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Update
+    if: github.repository == 'darinegan/chocolatey-packages'
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Chocolatey-AU
+        shell: powershell
+        run: choco install chocolatey-au -y --no-progress
+
+      - name: Run update
+        shell: powershell
+        env:
+          au_Push: 'false'
+          github_user_repo: ${{ github.repository }}
+        run: .\.github\scripts\update\run.ps1
+
+      - name: Create or update PR
+        shell: pwsh
+        env:
+          BASE_BRANCH: master
+          GH_TOKEN: ${{ secrets.UPDATE_PR_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          UPDATE_BRANCH: automation/updates
+        run: .\.github\scripts\update\create-pr.ps1
