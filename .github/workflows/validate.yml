@@ -22,7 +22,7 @@ jobs:
       relevant: ${{ steps.detect.outputs.relevant }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
 
       - name: Detect scope
         id: detect
@@ -43,7 +43,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
 
       - name: Install Chocolatey-AU
         shell: powershell
@@ -66,7 +66,7 @@ jobs:
         item: ${{ fromJSON(needs.detect-scope.outputs.items) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
 
       - name: Install Chocolatey-AU
         shell: powershell
@@ -91,7 +91,7 @@ jobs:
         item: ${{ fromJSON(needs.detect-scope.outputs.items) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
 
       - name: Pack
         shell: powershell
@@ -106,7 +106,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
 
       - name: Check workflow security
         shell: pwsh
@@ -126,7 +126,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # actions/checkout v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # actions/checkout v6.0.3
 
       - name: Report result
         shell: pwsh
