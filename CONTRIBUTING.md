@@ -39,6 +39,20 @@ Publishing remains a manual environment-gated workflow dispatch until publish-on
 
 Update diagnostics are not uploaded as workflow artifacts. This repository is public, and artifacts cannot be restricted to one maintainer.
 
+### Deferred update/publish/release plan
+
+Issue #40 owns the update, publish, and release architecture deferred after the validate-only foundation in issue #38. Keep issue #39 open as the child follow-up for enabling publish-on-push after the required `Validation result` gate is configured on `master`.
+
+Plan follow-up work in small PRs that preserve the workflow boundary above:
+
+1. Stabilize update PR production: choose the update branch model, timestamp branch naming, package discovery runner, blocked-root reporting, and candidate metadata that update PRs need before publishing is considered.
+1. Harden validation as the merge contract: keep pull request validation secret-free, verify stack parent and retargeting behavior, add version non-regression and package dependency validation, and keep `Validation result` as the required status check.
+1. Enable publish sequencing: complete issue #39, keep publishing push-only from protected `master`, preserve feed-idempotent checks, and add dependency-aware package ordering before expanding automatic publish scope.
+1. Materialize reviewed releases: create immutable GitHub release/tag metadata from protected `master`, protect release tags, and record enough release ledger data to audit which reviewed source produced each pushed package.
+1. Update docs with each automation change: document only the remaining maintainer decisions here, keep the user-facing summary in `README.md`, and keep agent-only rules in `AGENTS.md`.
+
+Do not mix these streams into the validate-only foundation. Each non-trivial follow-up should have a GitHub Issue linked to issue #40 and a pull request with a closing reference for the issue it completes.
+
 ### Maintainer responsibilities
 
 Repository controls are managed through GitHub settings and automation. Normal maintainer work should focus on the manual steps that cannot be safely automated:
