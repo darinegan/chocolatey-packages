@@ -23,30 +23,36 @@ Use GitHub Issues as the durable unit of work for non-trivial changes.
 1. Include a closing reference in the pull request body when the pull request fully resolves the issue.
 1. If review, investigation, or implementation discovers follow-up work, file a separate issue for that work instead of leaving it only in chat, comments, or local notes.
 
-## Current automation scope
+## Maintainer release workflow
 
-This PR scope is validate-only:
+The release automation is intentionally split into mutually exclusive responsibilities:
 
-- **Validate** validates pull requests and is the merge gate candidate.
-- Validate stays secret-free so it can safely run for forks.
+- **Update** runs `.\update_all.ps1` without publishing and opens an update pull request.
+- **Validate** validates pull requests and is the required merge gate.
+- **Publish** only packs and pushes sources that already reached protected `master`.
 
-Update and publish automation is deferred to follow-up issue work:
+Maintainers should not combine update and publish behavior in a single workflow. Publishing to public chocolatey.org must happen through the publish workflow, using `CHOCOLATEY_PUSH_URL=https://push.chocolatey.org/` and the protected `CHOCOLATEY_API_KEY` environment secret.
 
-- #40 tracks deferred update/publish architecture.
-- #39 stays open as a child follow-up for publish-trigger enablement after the deferred stream is implemented.
+Manual publish runs must be dispatched from `master`; the publish workflow checks out protected `master` and will not run from feature branches.
 
-Until that deferred work lands, maintainers continue the release flow manually (`.\update_all.ps1`, `choco pack`, `choco push`) from trusted maintainer context.
+Publishing remains a manual environment-gated workflow dispatch until publish-on-push is enabled in a follow-up change.
+
+Update diagnostics are not uploaded as workflow artifacts. This repository is public, and artifacts cannot be restricted to one maintainer.
 
 ### Maintainer responsibilities
 
 Repository controls are managed through GitHub settings and automation. Normal maintainer work should focus on the manual steps that cannot be safely automated:
 
-1. Review and merge pull requests after validation passes.
-1. Ensure pull requests pass the `Validation result` gate before merge.
-1. Run manual release commands from trusted maintainer context when a package release is needed.
-1. Set or rotate secrets without pasting secret values into issues, pull requests, or chat.
+1. Review and merge automated update pull requests.
+1. Approve protected publishing deployments when packages should be released.
+1. Set or rotate automation secrets without pasting secret values into issues, pull requests, or chat.
+1. Manually dispatch update or publish workflows when needed.
 
-For this validate-only phase, treat update/publish credentials and workflow triggers as deferred work under #40/#39 and do not add publish or update secrets to pull request validation.
+### Required automation credentials
+
+- `UPDATE_PR_TOKEN`: fine-grained PAT or GitHub App token scoped only to this repository with the minimum permissions needed to push the update branch and create or update pull requests. Do not replace it with `GITHUB_TOKEN`; `GITHUB_TOKEN`-created PRs do not trigger the required pull request validation workflow.
+- `CHOCOLATEY_API_KEY`: protected environment secret for publishing to public chocolatey.org.
+- `CHOCOLATEY_PUSH_URL`: non-secret workflow environment variable set to `https://push.chocolatey.org/`.
 
 ## Resources
 
