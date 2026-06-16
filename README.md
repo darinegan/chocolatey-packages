@@ -8,13 +8,12 @@ All packages should conform with the [standards][choco-standards] from the Choco
 
 ## Automation
 
-Updates and publishing are split across three GitHub Actions workflows:
+Current automation scope in this branch is a dedicated **Validate** workflow:
 
 - **Validate** checks pull requests without secrets or publishing authority.
-- **Update** runs Chocolatey-AU against `master` and opens a pull request when sources under `automatic\` change.
-- **Publish** packs and publishes reviewed sources after they land on protected `master`.
+- The final **Validation result** job is always-concluding so it can be used as a required branch-protection check.
 
-Publishing targets public chocolatey.org. The publish workflow uses the explicit push endpoint `https://push.chocolatey.org/`; only the Chocolatey API key is secret. Public-repository workflow artifacts are not uploaded for private diagnostics because they cannot be restricted to one user.
+Update and publish workflow design is intentionally deferred to follow-up issue work so the current PR can stay validate-only. See issue #40 (deferred update/publish architecture) and issue #39 (publish-trigger follow-up under that deferred stream).
 
 For contributor and maintainer operating rules, see [CONTRIBUTING.md](CONTRIBUTING.md). For AI-agent-specific repository guidance, see [AGENTS.md](AGENTS.md).
 

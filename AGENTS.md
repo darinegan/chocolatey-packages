@@ -1,16 +1,14 @@
 # Agent instructions
 
-This repository uses Chocolatey-AU and GitHub Actions to update, validate, pack, and publish.
+This repository currently lands a validate-only automation foundation.
 
 ## Operating rules
 
-- Keep workflow responsibilities mutually exclusive:
-  - update workflow: update package source files and open a pull request;
-  - validation workflow: validate pull requests without secrets;
-  - publish workflow: pack and publish reviewed sources from protected `master`.
-- Do not use `pull_request_target` for automation.
+- Keep pull request validation secret-free and fork-safe.
+- Use `pull_request` for validation; do not use `pull_request_target`.
 - Do not add secrets to pull request validation.
-- Do not combine `.\update_all.ps1` with `choco push` in the same workflow.
+- Update and publish workflow design is deferred to issue #40.
+- Keep #39 open as a child follow-up under that deferred stream.
 - Use `gh` to validate live repository controls before changing release automation.
 - Pin external GitHub Actions to full 40-character commit SHAs.
 - Prefer `git`, PowerShell, and `gh` over third-party actions in jobs that use sensitive tokens.
