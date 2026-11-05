@@ -56,7 +56,8 @@ function Read-FabricReleaseNotes
 
     Write-Debug "Parsing release notes"
     # # Microsoft Azure Service Fabric 10.1 Cumulative Update 3.0 Release Notes
-    $patternCaption = '\s*#\s*(?<caption>Microsoft\s+Azure\s+Service\s+Fabric\s+(?<releaseName>.+))\s+Release\s+Notes\s*'
+    # # Service Fabric 11.9 Release Notes
+    $patternCaption = '\s*#\s*(?<caption>(Microsoft\s+Azure\s+)?Service\s+Fabric\s+(?<releaseName>.+))\s+Release\s+Notes\s*'
     # Runtime: https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabric.10.1.1951.9590.exe
     # Run Time:
     # https://download.microsoft.com/download/b/8/a/b8a2fb98-0ec1-41e5-be98-9d8b5abf7856/MicrosoftServiceFabric.10.1.2175.9590.exe
